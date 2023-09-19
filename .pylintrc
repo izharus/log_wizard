@@ -1,0 +1,5 @@
+[pylint]
+#W0718:broad-exception-caught
+#W1203: using f-strings in logging func
+max-line-length=120
+disable = W1203, W0718

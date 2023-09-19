@@ -1,0 +1,17 @@
+# Ignore Python cache files
+__pycache__/
+
+# Ignore virtual environment directories
+venv/
+
+# Ignore compiled Python files
+*.pyc
+
+# Ignore environment-specific files
+.env
+
+# Exclude VS Code settings and configurations
+.vscode/
+.mypy_cache/
+.pytest_cache/
+src/test.py
