@@ -15,3 +15,4 @@ venv/
 .mypy_cache/
 .pytest_cache/
 src/test.py
+data/
