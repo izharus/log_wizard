@@ -16,3 +16,6 @@ venv/
 .pytest_cache/
 src/test.py
 data/
+dist/
+build/
+log_wizard.egg-info/
