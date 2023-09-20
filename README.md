@@ -1,6 +1,7 @@
 # log_wizard
 
 ## Installation
+To get started with Log Wizard, you can easily install it using pip
 ```bash
 pip install log-wizard
 ```
@@ -31,8 +32,8 @@ with log.insert_proc_id(proc_id):
     with log.insert_func_name():
         log.info("here also should be proc id and a func name, where log called")
 ```
-You can now proceed with the usage and configuration steps mentioned in the previous README template to integrate log_wizard into your projects.
-Configuration
+
+## Configuration
 You can configure Log Wizard by modifying the DefaultConfig class.
 
 ## Features
