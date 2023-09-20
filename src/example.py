@@ -12,8 +12,8 @@
 #See the License for the specific language governing permissions and
 #limitations under the License.
 
-from src.logger_manager import DefaultConfig
-from src.logger_manager import log
+from log_wizard.logger_manager import DefaultConfig
+from log_wizard.logger_manager import log
 log = log()
 
 def main():
