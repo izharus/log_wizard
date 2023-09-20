@@ -30,7 +30,7 @@ with log.insert_proc_id(proc_id):
     #20.09.2023 06:10:35 - INFO - 12345 - here should be proc id
     log.info("here should be proc id")
     with log.insert_func_name():
-        log.info("here also should be proc id and a func name, where log called")
+        log.info("here also should be proc id and a func name, where log was called")
 ```
 
 ## Configuration
@@ -45,4 +45,4 @@ Supports different log levels (info, error, debug, critical, etc.)
 This project is licensed under the Apache License, Version 2.0 - see the LICENSE file for details.
 
 ## Contact
-For any questions or feedback, feel free to contact us at ruslan.izhakovskij@gmail.com.
+For any questions or feedback, feel free to contact me at ruslan.izhakovskij@gmail.com.
