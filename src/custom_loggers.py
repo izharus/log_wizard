@@ -31,7 +31,8 @@ class CustomLogger(logging.Logger):
         """
         super().__init__(*args, **kwargs)
         self.thread_local = threading.local()
-
+        self.thread_local.proc_id = None
+        self.thread_local.is_print_func_name = False
     def debug(self, msg, *args, **kwargs):
         """
         Log a debug-level message.
@@ -104,11 +105,11 @@ class CustomLogger(logging.Logger):
         """
         frame = inspect.currentframe().f_back.f_back
         func_name = frame.f_code.co_name
-        proc_id = getattr(self.thread_local, "proc_id", None)
-        print_func_name = getattr(self.thread_local, "print_func_name", None)
+        proc_id = self.thread_local.proc_id
+        is_print_func_name = self.thread_local.is_print_func_name
 
         custom_msg = msg
-        if print_func_name:
+        if is_print_func_name:
             custom_msg = f"{func_name} - {custom_msg}"
         if proc_id:
             custom_msg = f"{proc_id} - {custom_msg}"
@@ -126,11 +127,11 @@ class CustomLogger(logging.Logger):
         Note:
             Log messages outside the block will not include the function name.
         """
-        setattr(self.thread_local, "print_func_name", True)
+        self.thread_local.is_print_func_name = True
         try:
             yield
         finally:
-            setattr(self.thread_local, "print_func_name", None)
+            self.thread_local.is_print_func_name = False
 
     @contextmanager
     def insert_proc_id(self, proc_id: str):
@@ -147,11 +148,11 @@ class CustomLogger(logging.Logger):
         Note:
             Log messages outside the block will not include the process ID.
         """
-        setattr(self.thread_local, "proc_id", proc_id)
+        self.thread_local.proc_id = proc_id
         try:
             yield
         finally:
-            setattr(self.thread_local, "proc_id", None)
+            self.thread_local.proc_id = None
 
 
 class UILogHandler(logging.Handler):
