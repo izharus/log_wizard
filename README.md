@@ -8,7 +8,7 @@ pip install log-wizard
 
 ## usage
 ```python
-from log_wizard import DefaultConfig
+from log_wizard import DefaultConfig, log
 # initilize DefaultConfig if need
 # You can do it onece, before first call of log
 # Also look at params for DefaultConfig
