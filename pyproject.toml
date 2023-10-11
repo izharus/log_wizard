@@ -18,6 +18,3 @@ src_paths = ["<your_code_dir>"]
 
 [tool.mypy]
 ignore_missing_imports = true
-
-[tool.pylint]
-max-line-length = 12

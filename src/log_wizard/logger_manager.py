@@ -1,16 +1,16 @@
-#Copyright 2023 izharus
+# Copyright 2023 izharus
 #
-#Licensed under the Apache License, Version 2.0 (the "License");
-#you may not use this file except in compliance with the License.
-#You may obtain a copy of the License at
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
-#Unless required by applicable law or agreed to in writing, software
-#distributed under the License is distributed on an "AS IS" BASIS,
-#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#See the License for the specific language governing permissions and
-#limitations under the License.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """
 custom_logger: A module providing custom logger functionality.
 
@@ -20,12 +20,14 @@ records by calling a specified log function.
 
 Classes:
     - CustomLogger: A custom logger supporting process ID and function name insertion.
-    - UILogHandler: A custom logging handler for emitting log records through a log function.
+    - UILogHandler: A custom logging handler for emitting log records
+        through a log function.
 """
 import datetime
-import os
 import logging
-from typing import Callable, Any, List
+import os
+from typing import Any, Callable, List
+
 from .custom_loggers import CustomLogger, UILogHandler
 
 
@@ -33,8 +35,9 @@ class DefaultConfig:
     """
     Singleton class for managing default configuration settings.
 
-    This class provides a single instance to manage default configuration settings for the application,
-    such as log file locations, log file postfixes, UI logging function, and console log printing.
+    This class provides a single instance to manage default configuration
+    settings for the application, such as log file locations, log file postfixes,
+    UI logging function, and console log printing.
 
     Attributes:
         ui_log_func (Callable[[str], Any]): A custom function for logging to the UI.
@@ -57,7 +60,7 @@ class DefaultConfig:
             cls._instance.init_config(*args, **kwargs)
         return cls._instance
 
-    # pylint: disable=W0201
+    # pylint: disable=W0201, R0913
     def init_config(
         self,
         log_formatter: logging.Formatter = None,
@@ -100,10 +103,11 @@ class DefaultConfig:
                 "%(asctime)s - %(levelname)s - %(message)s", datefmt="%d.%m.%Y %H:%M:%S"
             )
 
-    def set_ui_log_func(self,
-                        ui_log_func: Callable[[str], Any],
-                        log_formatter: logging.Formatter = None,
-                        ) -> None:
+    def set_ui_log_func(
+        self,
+        ui_log_func: Callable[[str], Any],
+        log_formatter: logging.Formatter = None,
+    ) -> None:
         """
         Set a custom function for logging to the user interface.
 
@@ -126,10 +130,12 @@ class CustomLoggerManager:
     """
     A manager for creating and configuring custom loggers.
 
-    This class follows the singleton pattern to ensure that only one instance of a logger manager is created.
+    This class follows the singleton pattern to ensure that only one instance of
+    a logger manager is created.
 
     Args:
-        default_config (DefaultConfig, optional): The default logging configuration. If not provided, a default configuration is used.
+        default_config (DefaultConfig, optional): The default logging configuration.
+            If not provided, a default configuration is used.
 
     Attributes:
         logger (logging.Logger): The custom logger instance configured by this manager.
@@ -157,7 +163,8 @@ class CustomLoggerManager:
     # pylint: disable=W0201
     def init_logger(self, default_config: DefaultConfig = None) -> None:
         """
-        Initialize the custom logger instance based on the provided or default configuration.
+        Initialize the custom logger instance based on the provided or
+        default configuration.
 
         Args:
             default_config (DefaultConfig, optional): The default logging configuration.
@@ -188,9 +195,9 @@ class CustomLoggerManager:
 
     @staticmethod
     def create_filehandler(
-        log_dir: str, 
-        log_level: Any, 
-        log_formatter: logging.Formatter, 
+        log_dir: str,
+        log_level: Any,
+        log_formatter: logging.Formatter,
         file_postfix: str,
     ) -> logging.FileHandler:
         """
@@ -229,7 +236,8 @@ class CustomLoggerManager:
     @classmethod
     def init_logging(cls, default_config: DefaultConfig) -> CustomLogger:
         """
-        Initialize the logging configuration based on the provided or default configuration.
+        Initialize the logging configuration based on the provided or
+        default configuration.
 
         Args:
             default_config (DefaultConfig): The default logging configuration.
@@ -241,8 +249,8 @@ class CustomLoggerManager:
         os.makedirs(default_config.log_dir, exist_ok=True)
 
         file_handler_info = cls.create_filehandler(
-            default_config.log_dir, 
-            logging.INFO, 
+            default_config.log_dir,
+            logging.INFO,
             default_config.log_formatter,
             default_config.info_file_postfix,
         )
@@ -271,22 +279,26 @@ class CustomLoggerManager:
             logger.addHandler(console_handler)
         # A file handler for saving logs to the file
         if default_config.ui_log_funcs:
-            map(cls.create_ui_log_func_handler, 
-                (default_config.ui_log_funcs, default_config.log_formatter)
-                )
+            map(
+                cls.create_ui_log_func_handler,
+                (default_config.ui_log_funcs, default_config.log_formatter),
+            )
         return logger
-    
 
-    def create_ui_log_func_handler(self,
-                         ui_log_func: Callable[[str], Any],
-                         log_formatter: logging.Formatter,
-                         ) -> None:
+    def create_ui_log_func_handler(
+        self,
+        ui_log_func: Callable[[str], Any],
+        log_formatter: logging.Formatter,
+    ) -> None:
         """
-        Create a log handler for logging to the user interface using a custom log function.
+        Create a log handler for logging to the user interface using a custom
+        log function.
 
         Args:
-            ui_log_func (Callable[[str], Any]): A custom function for logging messages to the user interface.
-            log_formatter (logging.Formatter): The log formatter to be used for UI logging.
+            ui_log_func (Callable[[str], Any]): A custom function for logging
+                messages to the user interface.
+            log_formatter (logging.Formatter): The log formatter to be used
+                for UI logging.
 
         Returns:
             None

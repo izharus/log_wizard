@@ -1,6 +1,7 @@
+#F401 '.logger_manager.log' imported but unused (it also raises in init.py files)
 [flake8]
 max-line-length = 90
-extend-ignore = E501, E203, W503
+extend-ignore = E501, E203, W503, F401
 per-file-ignores =
     settings*.py:E402,F403,F405
 exclude =

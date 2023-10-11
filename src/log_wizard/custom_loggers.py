@@ -1,16 +1,16 @@
-#Copyright 2023 izharus
+# Copyright 2023 izharus
 #
-#Licensed under the Apache License, Version 2.0 (the "License");
-#you may not use this file except in compliance with the License.
-#You may obtain a copy of the License at
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
 #    http://www.apache.org/licenses/LICENSE-2.0
 #
-#Unless required by applicable law or agreed to in writing, software
-#distributed under the License is distributed on an "AS IS" BASIS,
-#WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-#See the License for the specific language governing permissions and
-#limitations under the License.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """
 custom_loggers: A module providing custom logger functionality.
 
@@ -20,18 +20,19 @@ records by calling a specified log function.
 
 Classes:
     - CustomLogger: A custom logger supporting process ID and function name insertion.
-    - UILogHandler: A custom logging handler for emitting log records through a log function.
+    - UILogHandler: A custom logging handler for emitting log records
+        through a log function.
 """
-import threading
-import logging
-from contextlib import contextmanager
 import inspect
+import logging
 import threading
+from contextlib import contextmanager
 
 
 class CustomLogger(logging.Logger):
     """
-    A custom logger that supports inserting process ID and function name into log messages.
+    A custom logger that supports inserting process ID and function name
+    into log messages.
     """
 
     def __init__(self, *args, **kwargs):
@@ -44,6 +45,7 @@ class CustomLogger(logging.Logger):
         """
         super().__init__(*args, **kwargs)
         self.thread_local = threading.local()
+
     def debug(self, msg, *args, **kwargs):
         """
         Log a debug-level message.
@@ -116,8 +118,8 @@ class CustomLogger(logging.Logger):
         """
         frame = inspect.currentframe().f_back.f_back
         func_name = frame.f_code.co_name
-        proc_id = getattr(self.thread_local, 'proc_id', None)
-        is_print_func_name = getattr(self.thread_local, 'is_print_func_name', False)
+        proc_id = getattr(self.thread_local, "proc_id", None)
+        is_print_func_name = getattr(self.thread_local, "is_print_func_name", False)
 
         custom_msg = msg
         if is_print_func_name:
@@ -129,7 +131,8 @@ class CustomLogger(logging.Logger):
     @contextmanager
     def insert_func_name(self):
         """
-        Context manager to enable printing the function name in log messages within the block.
+        Context manager to enable printing the function name in log messages
+        within the block.
 
         Usage:
             with logger.insert_func_name():
@@ -138,11 +141,11 @@ class CustomLogger(logging.Logger):
         Note:
             Log messages outside the block will not include the function name.
         """
-        setattr(self.thread_local, 'is_print_func_name', True)
+        setattr(self.thread_local, "is_print_func_name", True)
         try:
             yield
         finally:
-            setattr(self.thread_local, 'is_print_func_name', False)
+            setattr(self.thread_local, "is_print_func_name", False)
 
     @contextmanager
     def insert_proc_id(self, proc_id: str):
@@ -159,11 +162,11 @@ class CustomLogger(logging.Logger):
         Note:
             Log messages outside the block will not include the process ID.
         """
-        setattr(self.thread_local, 'proc_id', proc_id)
+        setattr(self.thread_local, "proc_id", proc_id)
         try:
             yield
         finally:
-            setattr(self.thread_local, 'proc_id', None)
+            setattr(self.thread_local, "proc_id", None)
 
 
 class UILogHandler(logging.Handler):
