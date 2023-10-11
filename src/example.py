@@ -21,6 +21,7 @@ def main():
     Example usage:
     """
     DefaultConfig(log_dir = 'data/log')
+    DefaultConfig().set_ui_log_func(print)
     proc_id = "12345"
     log.info("some info")
     log.error("some error")

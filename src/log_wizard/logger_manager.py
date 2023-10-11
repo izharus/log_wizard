@@ -25,7 +25,7 @@ Classes:
 import datetime
 import os
 import logging
-from typing import Callable, Any
+from typing import Callable, Any, List
 from .custom_loggers import CustomLogger, UILogHandler
 
 
@@ -39,7 +39,7 @@ class DefaultConfig:
     Attributes:
         ui_log_func (Callable[[str], Any]): A custom function for logging to the UI.
         info_file_postfix (str): The postfix for info log files.
-        debug_file_postfixh (str): The postfix for debug log files.
+        debug_file_postfix (str): The postfix for debug log files.
         is_print_in_con (bool): Flag to enable printing log messages to the console.
         log_dir (str): The directory to store log files.
 
@@ -60,9 +60,10 @@ class DefaultConfig:
     # pylint: disable=W0201
     def init_config(
         self,
+        log_formatter: logging.Formatter = None,
         log_dir: str = "data/log",
         info_file_postfix="log_info.txt",
-        debug_file_postfixh="log_debug.txt",
+        debug_file_postfix="log_debug.txt",
         ui_log_func: Callable[[str], Any] = None,
         is_print_in_con=True,
     ):
@@ -70,20 +71,55 @@ class DefaultConfig:
         Initialize the configuration for DefaultConfig.
 
         Args:
-            log_dir (str, optional): The directory to store log files. Defaults to "data/log".
-            info_file_postfix (str, optional): The postfix for info log files. Defaults to 'log_info.txt'.
-            debug_file_postfixh (str, optional): The postfix for debug log files. Defaults to 'log_debug.txt'.
-            ui_log_func (Callable[[str], Any], optional): A custom function for logging to the UI. Defaults to None.
-            is_print_in_con (bool, optional): Flag to enable printing log messages to the console. Defaults to True.
+            log_formatter (logging.Formatter, optional): The log formatter to use. If not
+                provided, a default formatter will be used.
+            log_dir (str, optional): The directory to store log files.
+                Defaults to "data/log".
+            info_file_postfix (str, optional): The postfix for info log files.
+                Defaults to 'log_info.txt'.
+            debug_file_postfix (str, optional): The postfix for debug log files.
+                Defaults to 'log_debug.txt'.
+            ui_log_func [Callable[[str], Any], optional): A list of custom
+                functions for logging to the UI. Defaults to an empty list.
+            is_print_in_con (bool, optional): Flag to enable printing log messages
+                to the console. Defaults to True.
 
         Returns:
             None
         """
-        self.ui_log_func = ui_log_func
+        self.ui_log_funcs: List[Callable[[str], Any]] = [ui_log_func]
         self.info_file_postfix = info_file_postfix
-        self.debug_file_postfixh = debug_file_postfixh
+        self.debug_file_postfix = debug_file_postfix
         self.is_print_in_con = is_print_in_con
         self.log_dir = log_dir
+
+        if log_formatter:
+            self.log_formatter = log_formatter
+        else:
+            self.log_formatter = logging.Formatter(
+                "%(asctime)s - %(levelname)s - %(message)s", datefmt="%d.%m.%Y %H:%M:%S"
+            )
+
+    def set_ui_log_func(self,
+                        ui_log_func: Callable[[str], Any],
+                        log_formatter: logging.Formatter = None,
+                        ) -> None:
+        """
+        Set a custom function for logging to the user interface.
+
+        Args:
+            ui_log_func (Callable[[str], Any]): A custom function for logging messages
+                to the user interface.
+            log_formatter (logging.Formatter, optional): The log formatter to use for
+                UI logging. If not provided, the default formatter will be used.
+
+        Returns:
+            None
+        """
+        self.ui_log_funcs.append(ui_log_func)
+        if not log_formatter:
+            log_formatter = self.log_formatter
+        CustomLoggerManager().create_ui_log_func_handler(ui_log_func, log_formatter)
 
 
 class CustomLoggerManager:
@@ -152,13 +188,17 @@ class CustomLoggerManager:
 
     @staticmethod
     def create_filehandler(
-        default_config, log_level, log_formatter, file_postfix
+        log_dir: str, 
+        log_level: Any, 
+        log_formatter: logging.Formatter, 
+        file_postfix: str,
     ) -> logging.FileHandler:
         """
         Create a file handler for logging.
 
         Args:
-            default_config (DefaultConfig): The default logging configuration.
+            log_dir (str): The directory to store log files.
+                Defaults to "data/log".
             log_level (int): The log level for the handler.
             log_formatter (logging.Formatter): The log message formatter.
             file_postfix (str): The postfix for log files.
@@ -167,7 +207,7 @@ class CustomLoggerManager:
             logging.FileHandler: A file handler for logging.
 
         """
-        os.makedirs(default_config.log_dir, exist_ok=True)
+        os.makedirs(log_dir, exist_ok=True)
 
         # Get the current month and year
         current_month = datetime.datetime.now().strftime("%m")
@@ -176,7 +216,7 @@ class CustomLoggerManager:
         # Create the log file name using the current month and year
         log_file_name = f"{current_month}.{current_year}.{file_postfix}"
         # Create the full path to the log file
-        log_file_path = os.path.join(default_config.log_dir, log_file_name)
+        log_file_path = os.path.join(log_dir, log_file_name)
 
         # Configure the logging module
 
@@ -199,17 +239,18 @@ class CustomLoggerManager:
 
         """
         os.makedirs(default_config.log_dir, exist_ok=True)
-        log_formatter = logging.Formatter(
-            "%(asctime)s - %(levelname)s - %(message)s", datefmt="%d.%m.%Y %H:%M:%S"
-        )
+
         file_handler_info = cls.create_filehandler(
-            default_config, logging.INFO, log_formatter, default_config.info_file_postfix
+            default_config.log_dir, 
+            logging.INFO, 
+            default_config.log_formatter,
+            default_config.info_file_postfix,
         )
         file_handler_debug = cls.create_filehandler(
-            default_config,
+            default_config.log_dir,
             logging.DEBUG,
-            log_formatter,
-            default_config.debug_file_postfixh,
+            default_config.log_formatter,
+            default_config.debug_file_postfix,
         )
 
         # file_handler_info = create_filehandler
@@ -225,16 +266,35 @@ class CustomLoggerManager:
         # Create a console handler
         if default_config.is_print_in_con:
             console_handler = logging.StreamHandler()
-            console_handler.setFormatter(log_formatter)
+            console_handler.setFormatter(default_config.log_formatter)
             console_handler.setLevel(logging.INFO)
             logger.addHandler(console_handler)
         # A file handler for saving logs to the file
-        if default_config.ui_log_func:
-            ui_handler = UILogHandler(default_config.ui_log_func)
-            ui_handler.setFormatter(log_formatter)
-            ui_handler.setLevel(logging.DEBUG)
-            logger.addHandler(ui_handler)
+        if default_config.ui_log_funcs:
+            map(cls.create_ui_log_func_handler, 
+                (default_config.ui_log_funcs, default_config.log_formatter)
+                )
         return logger
+    
+
+    def create_ui_log_func_handler(self,
+                         ui_log_func: Callable[[str], Any],
+                         log_formatter: logging.Formatter,
+                         ) -> None:
+        """
+        Create a log handler for logging to the user interface using a custom log function.
+
+        Args:
+            ui_log_func (Callable[[str], Any]): A custom function for logging messages to the user interface.
+            log_formatter (logging.Formatter): The log formatter to be used for UI logging.
+
+        Returns:
+            None
+        """
+        ui_handler = UILogHandler(ui_log_func)
+        ui_handler.setFormatter(log_formatter)
+        ui_handler.setLevel(logging.INFO)
+        self.logger.addHandler(ui_handler)
 
 
 def log() -> CustomLogger:

@@ -16,6 +16,8 @@ from log_wizard import DefaultConfig, log
 # debug_file_postfixh takes all log msgs
 
 DefaultConfig(info_file_postfix = 'info', debug_file_postfixh = 'debug')
+# I can add a handler for your own function
+# DefaultConfig().set_ui_log_func(print)
 
 
 # now in any module of your project you can use this log
